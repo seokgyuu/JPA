@@ -1,0 +1,54 @@
+package service;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import domain.Content;
+import lombok.RequiredArgsConstructor;
+import repository.ContentRepository;
+
+@Service
+@RequiredArgsConstructor
+public class ContentService {
+
+	private final ContentRepository contentRepository;
+
+	public void writeContent(Content content) {
+		contentRepository.save(content);
+	}
+	
+	public void editContent(int id, String texts, String password) {
+		Content content = contentRepository.findById(id);
+		if(!content.getPassword().equals(password)) {
+			return;
+		}
+		
+		content.setTexts(texts);
+		
+		LocalDateTime now = LocalDateTime.now();
+		String formattedDate = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+		content.setUpdateDate(formattedDate);
+		
+		contentRepository.edit(id, content);
+	}
+	
+	public void deletContent(int id, String password) {
+		Content content = contentRepository.findById(id);
+		if(!content.getPassword().equals(password)) {
+			return;
+		}
+		contentRepository.delete(id);
+	}
+	
+	public List<Content> getAllContents(){
+		return contentRepository.findAll();
+		
+	}
+
+	public Content getContent(int id) {
+		return contentRepository.findById(id);
+	}
+}
